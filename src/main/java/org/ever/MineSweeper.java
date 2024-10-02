@@ -148,6 +148,36 @@ public class MineSweeper {
         return gameOver;
     }
 
+    public static int populateNumOfMines(Scanner scanner, int size) {
+		System.out.println("Enter the number of mines to place on the grid (maximum is 35% of the total squares): ");
+		if (scanner.hasNextInt()) {
+			try {
+				int numOfMines = scanner.nextInt();
+				int totalSquares = size * size;
+				if (numOfMines > totalSquares) {
+					System.out.println("Numbers of mine entered more than number of grids available");
+					populateNumOfMines(scanner, size);
+				} else if (numOfMines > 0.35 * totalSquares) {
+					System.out.println("Integer inputted exceeded 35% of total play area");
+					populateNumOfMines(scanner, size);
+				} else if (numOfMines < 1) {
+					System.out.println("Requires a postive number");
+					populateNumOfMines(scanner, size);
+				}else {
+					return numOfMines;
+				}
+			} catch (Exception e) {
+				System.out.println("Problem encounterd when parsing int");
+				populateNumOfMines(scanner, size);
+			}
+		} else {
+			scanner.nextLine();
+			System.out.println("Please type an integer");
+			populateNumOfMines(scanner, size);
+		}
+		return 3; //set default = 3
+	}
+    
     public static int populateGrid(Scanner scanner) {
 		System.out.println("Enter the size of the grid (e.g. 4 for a 4x4 grid): ");
 		if (scanner.hasNextInt()) {
@@ -174,8 +204,7 @@ public class MineSweeper {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int size = populateGrid(scanner);
-		System.out.println("Enter the number of mines to place on the grid (maximum is 35% of the total squares): ");
-		int totalMines = scanner.nextInt();
+		int totalMines = populateNumOfMines(scanner,size);
 
         MineSweeper game = new MineSweeper(size, totalMines);
 
