@@ -148,10 +148,32 @@ public class MineSweeper {
         return gameOver;
     }
 
+    public static int populateGrid(Scanner scanner) {
+		System.out.println("Enter the size of the grid (e.g. 4 for a 4x4 grid): ");
+		if (scanner.hasNextInt()) {
+			try {
+				int size = scanner.nextInt();
+				if (size > 1)
+					return size;
+				else {
+					System.out.println("Requires a postive number");
+					populateGrid(scanner);
+				}
+			} catch (Exception e) {
+				System.out.println("Problem encounterd when parsing int");
+				populateGrid(scanner);
+			}
+		} else {
+			scanner.nextLine();
+			System.out.println("Please type an integer");
+			populateGrid(scanner);
+		}
+		return 4; //default to 4
+	}
+    
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the size of the grid (e.g. 4 for a 4x4 grid): ");
-        int size = scanner.nextInt();
+        int size = populateGrid(scanner);
 		System.out.println("Enter the number of mines to place on the grid (maximum is 35% of the total squares): ");
 		int totalMines = scanner.nextInt();
 
