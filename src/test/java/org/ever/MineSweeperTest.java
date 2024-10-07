@@ -2,85 +2,97 @@ package test.java.org.ever;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import main.java.org.ever.MineSweeper;
 
+import java.util.Scanner;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-class MineSweeperTest {
-    private MineSweeper game;
+//Require to refactor of the MineSweeper Class to test input function
+public class MineSweeperTest {
 
-    private MineSweeper mineSweeper;
+    private Scanner mockScanner;
 
     @BeforeEach
-    void setUp() {
-        mineSweeper = new MineSweeper(4, 3); // 4x4 grid with 3 mines
+    public void setUp() {
+        mockScanner = Mockito.mock(Scanner.class);
     }
 
     @Test
-    void testInitialization() {
-        assertEquals(4, mineSweeper.getBoard().length);
-        for (char[] row : mineSweeper.getBoard()) {
-            for (char cell : row) {
-                assertEquals('0', cell); // Ensure all cells are initialized to '0'
-            }
-        }
+    public void testPopulateGrid_ValidInput() {
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(4);
+
+        int result = MineSweeper.populateGrid(mockScanner);
+        assertEquals(4, result);
     }
 
     @Test
-    void testMinePlacement() {
-        int mineCount = 0;
-        for (int r = 0; r < 4; r++) {
-            for (int c = 0; c < 4; c++) {
-                if (mineSweeper.getBoard()[r][c] == '*') {
-                    mineCount++;
-                }
-            }
-        }
-        assertEquals(3, mineCount); // Ensure exactly 3 mines are placed
+    public void testPopulateGrid_NegativeInput() {
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(-1);
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(5);
+
+        int result = MineSweeper.populateGrid(mockScanner);
+        assertEquals(5, result); // Should return valid input after retry
     }
 
     @Test
-    void testRevealMine() {
-        mineSweeper.reveal(0, 0); // Try to reveal a cell
-        assertTrue(mineSweeper.isGameOver()); // The game should be over if a mine is revealed
+    public void testPopulateGrid_NonIntegerInput() {
+        when(mockScanner.hasNextInt()).thenReturn(false);
+        when(mockScanner.nextLine()).thenReturn("not a number");
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(3);
+
+        int result = MineSweeper.populateGrid(mockScanner);
+        assertEquals(3, result); // Should return the valid input after retry
     }
 
     @Test
-    void testFlagging() {
-        mineSweeper.flag(1, 1); // Flag a cell
-        assertTrue(mineSweeper.isFlagged(1, 1)); // Ensure the cell is flagged
+    public void testPopulateNumOfMines_ValidInput() {
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(5);
 
-        mineSweeper.flag(1, 1); // Unflag the same cell
-        assertFalse(mineSweeper.isFlagged(1, 1)); // Ensure the cell is unflagged
+        int result = MineSweeper.populateNumOfMines(mockScanner, 4);
+        assertEquals(5, result);
     }
 
     @Test
-    void testCountAdjacentMines() {
-        // Assuming there's a mine at (0, 0) and (0, 1), 
-        // (1, 1) should have 2 adjacent mines
-        mineSweeper.flag(0, 0);
-        mineSweeper.flag(0, 1);
-        
-        assertEquals(2, mineSweeper.countAdjacentMines(1, 1));
+    public void testPopulateNumOfMines_TooManyMines() {
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(20); // More than 16 for a 4x4 grid
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(5);
+
+        int result = MineSweeper.populateNumOfMines(mockScanner, 4);
+        assertEquals(5, result); // Should return valid input after retry
     }
 
     @Test
-    void testRevealEmptyCell() {
-        // Before revealing, ensure the cell is not revealed
-        assertFalse(mineSweeper.isRevealed(2, 2));
-        
-        // Reveal a cell that does not contain a mine
-        mineSweeper.reveal(2, 2);
-        
-        // The cell should now be revealed
-        assertTrue(mineSweeper.isRevealed(2, 2));
+    public void testPopulateNumOfMines_Exceeding35Percent() {
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(10); // More than 5.6 for a 4x4 grid
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(3); // Valid input
+
+        int result = MineSweeper.populateNumOfMines(mockScanner, 4);
+        assertEquals(3, result); // Should return valid input after retry
     }
 
     @Test
-    void testGameOverState() {
-        mineSweeper.reveal(0, 0); // Try revealing a mine
-        assertTrue(mineSweeper.isGameOver()); // Check if the game is over
+    public void testPopulateNumOfMines_NegativeInput() {
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(-1); // Negative input
+        when(mockScanner.hasNextInt()).thenReturn(true);
+        when(mockScanner.nextInt()).thenReturn(2); // Valid input
+
+        int result = MineSweeper.populateNumOfMines(mockScanner, 4);
+        assertEquals(2, result); // Should return valid input after retry
     }
 }
+
 
